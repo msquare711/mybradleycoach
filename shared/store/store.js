@@ -3,39 +3,13 @@ import {
   combineReducers
 } from 'redux';
 
-import participantReducer from './reducers/participants';
-import meetingReducer from './reducers/meetings';
-import phaseReducer from './reducers/phase';
-import lockedReducer from './reducers/locked';
-import newHostsReducer from './reducers/newHosts';
-import userReducer from './reducers/user';
-import topicsReducer from './reducers/topics';
-import roomNameReducer from './reducers/roomName';
-import lockedOutReducer from './reducers/lockedOut';
-import allowKnockingReducer from './reducers/allowKnocking';
-import knockersReducer from './reducers/knockers';
+import moment from 'moment';
 
+const sampleContraction = {startTime: moment('2016-09-22T20:00:00-07:00'), endTime: moment('2016-09-22T20:02:00-07:00')};
 
 let reducers = combineReducers({
-  meetings: meetingReducer,
-  meetingFilter: (meetingFilter = '', action) => {
-    if(action.type === 'FILTER_MEETINGS'){
-      return action.filter || '';
-    }
-    return meetingFilter;
-  },
-  participants: participantReducer,
-  userId: userReducer,
-  phase: phaseReducer,
-  roomName: roomNameReducer,
-  timer: (timer = 350000) => timer,
-  phaseVotes: (phaseVotes = []) => phaseVotes,
-  topics: topicsReducer,
-  locked: lockedReducer,
-  newHosts: newHostsReducer,
-  lockedOut: lockedOutReducer,
-  allowKnocking: allowKnockingReducer,
-  knockers: knockersReducer
+  laborStartTime: (timer = moment('09/22/2016', 'MM/DD/YYYY')) => timer,
+  contractions:(contractions = [sampleContraction]) => contractions,
 });
 
 const attachDevTools = () => {
