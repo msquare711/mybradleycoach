@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import Contraction from './contraction';
+import Timer from './timer';
 
 class App extends Component {
   constructor(props){
@@ -8,12 +9,15 @@ class App extends Component {
   }
 
   render(){
+    const {laborStartTime, contractions} = this.props;
+    const renderedContractions = contractions.map((contraction, index) => (<Contraction {...contraction} key={index}/>));
     return (
       <main className='home'>
         My Bradley Coach
-        <div>{this.props.laborStartTime.format()}</div>
+        <div>Labor Start Time: {laborStartTime.format()}</div>
+        <div>Labor Duration: <Timer startTime={laborStartTime}/></div>
         <div>Someone's Contractions:
-        <Contraction startTime={this.props.contractions[0].startTime} endTime={this.props.contractions[0].endTime}/>
+          {renderedContractions}
         </div>
       </main>);
   }
