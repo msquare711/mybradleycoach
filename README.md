@@ -1,2 +1,1 @@
-# mybradleycoach
-Personalized Bradley Method Coaching application.
+# note and vote
