@@ -119,4 +119,4 @@ assets/
 coverage/
 *.swp
 bower_components
-dist
+dist/*

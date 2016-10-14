@@ -5,11 +5,16 @@ import {
 
 import moment from 'moment';
 
-const sampleContraction = {startTime: moment('2016-09-22T20:00:00-07:00'), endTime: moment('2016-09-22T20:02:00-07:00')};
+const contractionReducer = (contractions = [], action) => {
+  if(action.type === 'SAVE_CONTRACTION'){
+    return [...contractions, {startTime: action.startTime, endTime: action.endTime}];
+  }
+  return contractions;
+};
 
 let reducers = combineReducers({
   laborStartTime: (timer = moment('09/22/2016', 'MM/DD/YYYY')) => timer,
-  contractions:(contractions = [sampleContraction]) => contractions,
+  contractions: contractionReducer
 });
 
 const attachDevTools = () => {

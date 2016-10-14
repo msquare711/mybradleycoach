@@ -67,7 +67,7 @@
 
 	var _app2 = _interopRequireDefault(_app);
 
-	var _store = __webpack_require__(353);
+	var _store = __webpack_require__(355);
 
 	var _store2 = _interopRequireDefault(_store);
 
@@ -26450,11 +26450,13 @@
 /* 228 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(console) {'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -26467,6 +26469,12 @@
 	var _contraction = __webpack_require__(249);
 
 	var _contraction2 = _interopRequireDefault(_contraction);
+
+	var _timer = __webpack_require__(353);
+
+	var _timer2 = _interopRequireDefault(_timer);
+
+	var _actions = __webpack_require__(354);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -26488,6 +26496,15 @@
 	  _createClass(App, [{
 	    key: 'render',
 	    value: function render() {
+	      var _this2 = this;
+
+	      var _props = this.props;
+	      var laborStartTime = _props.laborStartTime;
+	      var contractions = _props.contractions;
+
+	      var renderedContractions = contractions.map(function (contraction, index) {
+	        return _react2.default.createElement(_contraction2.default, _extends({}, contraction, { key: index }));
+	      });
 	      return _react2.default.createElement(
 	        'main',
 	        { className: 'home' },
@@ -26495,13 +26512,35 @@
 	        _react2.default.createElement(
 	          'div',
 	          null,
-	          this.props.laborStartTime.format()
+	          'Labor Start Time: ',
+	          laborStartTime.format()
 	        ),
 	        _react2.default.createElement(
 	          'div',
 	          null,
-	          'Someone\'s Contractions:',
-	          _react2.default.createElement(_contraction2.default, { startTime: this.props.contractions[0].startTime, endTime: this.props.contractions[0].endTime })
+	          'Labor Duration: ',
+	          _react2.default.createElement(_timer2.default, { onStop: function onStop(startTime, endTime) {
+	              return console.log('start:' + startTime.format(), 'end:' + endTime.format());
+	            } })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(
+	            'h2',
+	            null,
+	            'Current Contraction'
+	          ),
+	          _react2.default.createElement(_timer2.default, { onStop: function onStop(startTime, endTime) {
+	              var saveAction = (0, _actions.saveContraction)(startTime, endTime);
+	              _this2.props.dispatch(saveAction);
+	            } }),
+	          _react2.default.createElement(
+	            'h3',
+	            null,
+	            'Previous Contractions'
+	          ),
+	          renderedContractions
 	        )
 	      );
 	    }
@@ -26515,6 +26554,7 @@
 	};
 
 	exports.default = (0, _reactRedux.connect)(selector)(App);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ },
 /* 229 */
@@ -41828,6 +41868,160 @@
 /* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(4);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _moment = __webpack_require__(250);
+
+	var _moment2 = _interopRequireDefault(_moment);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Timer = function (_Component) {
+	  _inherits(Timer, _Component);
+
+	  function Timer(props) {
+	    _classCallCheck(this, Timer);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Timer).call(this, props));
+
+	    var startTime = props.startTime;
+
+	    var duration = startTime ? _moment2.default.duration((0, _moment2.default)().diff(startTime)) : _moment2.default.duration(0);
+	    _this.state = {
+	      duration: duration,
+	      startTime: startTime
+	    };
+	    _this.refreshTimer = _this.refreshTimer.bind(_this);
+	    _this.startTimer = _this.startTimer.bind(_this);
+	    _this.stopTimer = _this.stopTimer.bind(_this);
+	    return _this;
+	  }
+
+	  _createClass(Timer, [{
+	    key: 'refreshTimer',
+	    value: function refreshTimer() {
+	      var _this2 = this;
+
+	      var recalcDuration = function recalcDuration() {
+	        var startTime = _this2.state.startTime;
+
+	        var duration = _moment2.default.duration((0, _moment2.default)().diff(startTime));
+	        var timeout = _this2.state.timeoutFunc;
+
+	        if (_this2.state.startTime && !_this2.state.endTime) {
+	          timeout = setTimeout(recalcDuration, 1000);
+	        }
+
+	        _this2.setState({
+	          duration: duration,
+	          timeoutFunc: timeout
+	        });
+	      };
+	      var timeoutFunc = setTimeout(recalcDuration, 1000);
+	      this.setState({
+	        timeoutFunc: timeoutFunc
+	      });
+	    }
+	  }, {
+	    key: 'startTimer',
+	    value: function startTimer() {
+	      this.setState({
+	        startTime: (0, _moment2.default)()
+	      });
+	      this.refreshTimer();
+	    }
+	  }, {
+	    key: 'stopTimer',
+	    value: function stopTimer() {
+	      var endTime = (0, _moment2.default)();
+	      this.setState({
+	        endTime: endTime
+	      });
+	      clearTimeout(this.state.timeoutFunc);
+	      this.props.onStop && this.props.onStop(this.state.startTime, endTime);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var duration = this.state.duration;
+
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'span',
+	          null,
+	          duration.get('hours'),
+	          ':',
+	          duration.get('minutes'),
+	          ':',
+	          duration.get('seconds')
+	        ),
+	        _react2.default.createElement(
+	          'button',
+	          { onClick: this.startTimer },
+	          'Start'
+	        ),
+	        _react2.default.createElement(
+	          'button',
+	          { onClick: this.stopTimer },
+	          'Stop'
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Timer;
+	}(_react.Component);
+
+	exports.default = Timer;
+
+/***/ },
+/* 354 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var saveContraction = function saveContraction(startTime, endTime) {
+	  return {
+	    type: 'SAVE_CONTRACTION',
+	    startTime: startTime,
+	    endTime: endTime
+	  };
+	};
+
+	var allowKnocking = function allowKnocking() {
+	  return {
+	    type: 'ALLOW_KNOCKING'
+	  };
+	};
+
+	exports.allowKnocking = allowKnocking;
+	exports.saveContraction = saveContraction;
+
+/***/ },
+/* 355 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -41843,18 +42037,24 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var sampleContraction = { startTime: (0, _moment2.default)('2016-09-22T20:00:00-07:00'), endTime: (0, _moment2.default)('2016-09-22T20:02:00-07:00') };
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	var contractionReducer = function contractionReducer() {
+	  var contractions = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	  var action = arguments[1];
+
+	  if (action.type === 'SAVE_CONTRACTION') {
+	    return [].concat(_toConsumableArray(contractions), [{ startTime: action.startTime, endTime: action.endTime }]);
+	  }
+	  return contractions;
+	};
 
 	var reducers = (0, _redux.combineReducers)({
 	  laborStartTime: function laborStartTime() {
 	    var timer = arguments.length <= 0 || arguments[0] === undefined ? (0, _moment2.default)('09/22/2016', 'MM/DD/YYYY') : arguments[0];
 	    return timer;
 	  },
-	  contractions: function contractions() {
-	    var _contractions = arguments.length <= 0 || arguments[0] === undefined ? [sampleContraction] : arguments[0];
-
-	    return _contractions;
-	  }
+	  contractions: contractionReducer
 	});
 
 	var attachDevTools = function attachDevTools() {
